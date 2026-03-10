@@ -26,18 +26,22 @@
 
         body {
             margin: 0;
-            background-color: var(--bg-wood);
-            background-image: repeating-linear-gradient(45deg, #3e2723 0, #3e2723 2px, #4e342e 0, #4e342e 50%);
-            background-size: 20px 20px;
-            height: 100vh;
-            width: 100vw;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Patrick Hand', 'Amiri', cursive;
+            background-color: var(--bg-wood);
+            /* إضافة الخلفية المخططة على كامل الموقع */
+            background-image: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.05),
+                rgba(0, 0, 0, 0.05) 2px,
+                transparent 2px,
+                transparent 40px
+            );
             overflow: hidden;
-            user-select: none; /* منع تحديد النص بالخطأ */
-            touch-action: pan-x pan-y;
+            width: 100vw;
         }
 
         .scene-container {
@@ -3483,17 +3487,18 @@ html += `<div class="page cover" data-density="hard">
             html += `<div class="page" id="sec-dashes"><div class="page-texture"><div class="intro-page-content"><h1 class="section-title">القسم الرابع</h1><h3 class="section-subtitle">عائلة الشرطات</h3><div style="font-size: 4rem; margin-top: 20px;">▬</div><button class="back-index-btn" onclick="jumpToSection('page-index')">الفهرس ↰</button></div></div></div>`;
             html += `<div class="page" id="content-dashes"><div class="page-texture">${createCards(['T', 'M', 'O'], 'single')}<div class="page-num">عائلة الشرطات</div></div></div>`;
 
-            // القسم الخامس: العائلة المعكوسة
+           // القسم الخامس: العائلة المعكوسة
             html += `<div class="page" id="sec-inverse"><div class="page-texture"><div class="intro-page-content"><h1 class="section-title">القسم الخامس</h1><h3 class="section-subtitle">العائلة المعكوسة</h3><div style="font-size: 4rem; margin-top: 20px;">🔄</div><button class="back-index-btn" onclick="jumpToSection('page-index')">الفهرس ↰</button></div></div></div>`;
-            html += `<div class="page" id="content-inverse" data-density="hard"><div class="page-texture">${createCards(['A', 'N', 'D', 'U', 'G', 'W', 'B', 'V'], 'pair')}<div class="page-num">العائلة المعكوسة</div></div></div>`;
+            html += `<div class="page" id="content-inverse" data-density="hard"><div class="page-texture"><div style="padding-top: 40px; padding-bottom: 40px; height: 100%; box-sizing: border-box;">${createCards(['A', 'N', 'D', 'U', 'G', 'W', 'B', 'V'], 'pair')}</div><div class="page-num" style="position: absolute; bottom: 5px; width: 100%; text-align: center;">العائلة المعكوسة</div></div></div>`;
 
             // القسم السادس: العائلة المحصورة
             html += `<div class="page" id="sec-sandwiched"><div class="page-texture"><div class="intro-page-content"><h1 class="section-title">القسم السادس</h1><h3 class="section-subtitle">العائلة المحصورة</h3><div style="font-size: 4rem; margin-top: 20px;">🥪</div><button class="back-index-btn" onclick="jumpToSection('page-index')">الفهرس ↰</button></div></div></div>`;
             html += `<div class="page" id="content-sandwiched"><div class="page-texture">${createCards(['K', 'R', 'P', 'X'], 'single')}<div class="page-num">العائلة المحصورة</div></div></div>`;
 
             // القسم السابع: مراجعة بقية الحروف
-            html += `<div class="page" id="sec-review"><div class="page-texture"><div class="intro-page-content"><h1 class="section-title">القسم السابع</h1><h3 class="section-subtitle">مراجعة بقية الحروف</h3><div style="font-size: 4rem; margin-top: 20px;">📝</div><button class="back-index-btn" onclick="jumpToSection('page-index')">الفهرس ↰</button></div></div></div>`;
-            html += `<div class="page" id="content-review"><div class="page-texture">${createCards(['C', 'F', 'J', 'L', 'Q', 'Y', 'Z'], 'single-inverse')}<div class="page-num">مراجعة بقية الحروف</div></div></div>`;
+        // القسم السابع: المتفرقات (الحروف المتبقية)
+            html += `<div class="page" id="sec-others"><div class="page-texture"><div class="intro-page-content"><h1 class="section-title">القسم السابع</h1><h3 class="section-subtitle">المتفرقات</h3><div style="font-size: 4rem; margin-top: 20px;">🧩</div><button class="back-index-btn" onclick="jumpToSection('page-index')">الفهرس ↰</button></div></div></div>`;
+            html += `<div class="page" id="content-others" data-density="hard"><div class="page-texture"><div style="padding-top: 40px; padding-bottom: 40px; height: 100%; box-sizing: border-box;">${createCards(['C', 'F', 'J', 'L', 'Q', 'Y', 'Z'], 'pair')}</div><div class="page-num" style="position: absolute; bottom: 5px; width: 100%; text-align: center;">المتفرقات</div></div></div>`;
 
             // القسم الثامن: تمارين الحروف
             html += `<div class="page" id="sec-exercises"><div class="page-texture"><div class="intro-page-content">
