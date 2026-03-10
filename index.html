@@ -5923,26 +5923,18 @@ const PageFlip = St.PageFlip;
                     getPageCount: () => document.querySelectorAll('.page').length
                 };
 
-              // تحديث حالة الكتاب (رقم الصفحة وما إلى ذلك) عند التمرير
+               // تحديث حالة الكتاب (رقم الصفحة وما إلى ذلك) عند التمرير
                 let scrollTimeout;
                 bookEl.addEventListener('scroll', () => {
                     // --- التعديل الجذري للهاتف: الإيقاف الفوري للصوت والإضاءة بمجرد بدء التمرير (بصفر تأخير) ---
                     try {
                         if (typeof stopMorse === 'function') stopMorse();
                         if (typeof stopPlayback === 'function') stopPlayback();
-                        if (typeof window.stopRadioBroadcast === 'function') window.stopRadioBroadcast(null); // إيقاف موجات الراديو فوراً
-                        if (typeof window.stopFlashlightMode === 'function') window.stopFlashlightMode(null); // إيقاف الكشاف الضوئي فوراً
-                        
                         if (window.audioCtx && window.audioCtx.state === 'running') window.audioCtx.suspend();
                         if (window.audioContext && window.audioContext.state === 'running') window.audioContext.suspend();
                         if (window.stopAllAudioAndAnimations) window.stopAllAudioAndAnimations();
-                        
                         window.currentWordPlaybackId = Date.now(); // قتل إضاءة مفكك الكلمات فوراً
-
-                        document.querySelectorAll('audio').forEach(a => { 
-                            a.pause(); 
-                            a.currentTime = 0; 
-                        });
+                        document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
                     } catch(err) {
                         console.log("خطأ في إيقاف الصوت أثناء التمرير:", err);
                     }
@@ -5955,29 +5947,19 @@ const PageFlip = St.PageFlip;
                         }
                     }, 150);
                 });
+
             } else {
                 // إبقاء تقليب الصفحات الكلاسيكي لأجهزة الكمبيوتر
-                bookFlipInstance = new PageFlip(bookEl, {
-                    width: sWidth,
-                    height: pHeight,
-                    size: 'fixed',
-                    direction: 'rtl',
-                    usePortrait: false,
-                    showCover: true,
-                    flippingTime: 600,
-                    clickEventForward: true
-                });
+                bookFlipInstance = new PageFlip(bookEl, { width: sWidth, height: pHeight, size: 'fixed', direction: 'rtl', usePortrait: false, showCover: true, flippingTime: 600, clickEventForward: true });
                 bookFlipInstance.loadFromHTML(document.querySelectorAll('.page'));
             }
 
-        const updateBookState = (p) => {
-            const total = bookFlipInstance.getPageCount();
-            const pages = document.querySelectorAll('.page');
-
-            // --- الإيقاف الفوري لجميع الأصوات والأنيميشن والتفاعلات عند بداية قلب أي صفحة ---
-            if (window.stopAllAudioAndAnimations) window.stopAllAudioAndAnimations();
-            if (typeof window.stopRadioBroadcast === 'function') window.stopRadioBroadcast(null); // إيقاف الراديو للكمبيوتر أيضاً
-            if (typeof window.stopFlashlightMode === 'function') window.stopFlashlightMode(null); // إيقاف الكشاف للكمبيوتر أيضاً
+const updateBookState = (p) => {
+                const total = bookFlipInstance.getPageCount();
+                const pages = document.querySelectorAll('.page');
+                
+                // --- الإيقاف الفوري لجميع الأصوات والأنيميشن والتفاعلات عند بداية قلب أي صفحة ---
+                if (window.stopAllAudioAndAnimations) window.stopAllAudioAndAnimations();
 
                 // إيقاف التمارين مؤقتاً إذا غادرنا صفحاتها
                 if (pages[p] && pages[p].id !== 'quiz-page' && QuizManager.isActive) QuizManager.pauseGame();
