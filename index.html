@@ -5904,50 +5904,80 @@ const PageFlip = St.PageFlip;
                     page.style.direction = 'rtl'; // إعادة المحتوى للغة العربية من اليمين لليسار
                 });
 
-// إخفاء ظل الكتاب الوهمي لأنه لم يعد مفيداً في الهاتف
+                // إخفاء ظل الكتاب الوهمي لأنه لم يعد مفيداً في الهاتف
                 if(shadowEl) shadowEl.style.display = 'none';
 
                 // إنشاء نسخة وهمية من bookFlipInstance لكي لا تتعطل دوال الفهرس والمفضلة
                 bookFlipInstance = {
                     flipNext: () => bookEl.scrollBy({ left: window.innerWidth, behavior: 'smooth' }), // التمرير لليمين (الصفحة التالية)
                     flipPrev: () => bookEl.scrollBy({ left: -window.innerWidth, behavior: 'smooth' }), // التمرير لليسار (الصفحة السابقة)
-                    flip: (index) => bookEl.scrollTo({ left: index * window.innerWidth, behavior: 'smooth' })
+                    flip: (index) => {
+                        const pages = document.querySelectorAll('.page');
+                        if(pages[index]) {
+                            // التمرير المباشر في الأجهزة المحمولة لتجنب الأخطاء في حساب المسافات
+                            bookEl.scrollTo({ left: index * window.innerWidth, behavior: 'auto' });
+                            updateBookState(index);
+                        }
+                    },
+                    getCurrentPageIndex: () => Math.round(bookEl.scrollLeft / window.innerWidth),
+                    getPageCount: () => document.querySelectorAll('.page').length
                 };
 
-                // --- التعديل الدقيق: إيقاف موجات الراديو والصوت فوراً عند التمرير (تغيير الصفحة) في الهاتف ---
-                let lastScrollIndex = 0;
+              // تحديث حالة الكتاب (رقم الصفحة وما إلى ذلك) عند التمرير
                 let scrollTimeout;
                 bookEl.addEventListener('scroll', () => {
-                    // 1. إيقاف الصوت فوراً عند أي لمسة تمرير (إيقاف موجات الراديو)
-                    if(typeof window.killAllScheduledAudio === 'function') window.killAllScheduledAudio();
-                    if(typeof window.closeSentenceModal === 'function') window.closeSentenceModal();
-                    document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
+                    // --- التعديل الجذري للهاتف: الإيقاف الفوري للصوت والإضاءة بمجرد بدء التمرير (بصفر تأخير) ---
+                    try {
+                        if (typeof stopMorse === 'function') stopMorse();
+                        if (typeof stopPlayback === 'function') stopPlayback();
+                        if (typeof window.stopRadioBroadcast === 'function') window.stopRadioBroadcast(null); // إيقاف موجات الراديو فوراً
+                        if (typeof window.stopFlashlightMode === 'function') window.stopFlashlightMode(null); // إيقاف الكشاف الضوئي فوراً
+                        
+                        if (window.audioCtx && window.audioCtx.state === 'running') window.audioCtx.suspend();
+                        if (window.audioContext && window.audioContext.state === 'running') window.audioContext.suspend();
+                        if (window.stopAllAudioAndAnimations) window.stopAllAudioAndAnimations();
+                        
+                        window.currentWordPlaybackId = Date.now(); // قتل إضاءة مفكك الكلمات فوراً
 
-                    // 2. تحديث حالة الكتاب بعد استقرار التمرير لمعرفة رقم الصفحة الحالية وتحديث الفهرس
+                        document.querySelectorAll('audio').forEach(a => { 
+                            a.pause(); 
+                            a.currentTime = 0; 
+                        });
+                    } catch(err) {
+                        console.log("خطأ في إيقاف الصوت أثناء التمرير:", err);
+                    }
+                    // --------------------------------------------------------------------------------------------------
+
                     clearTimeout(scrollTimeout);
                     scrollTimeout = setTimeout(() => {
-                        let currentPage = Math.round(bookEl.scrollLeft / window.innerWidth);
-                        if (currentPage !== lastScrollIndex) {
-                            lastScrollIndex = currentPage;
-                            if(typeof updateBookState === 'function') {
-                                updateBookState(currentPage);
-                            }
+                        if (typeof updateBookState === 'function') {
+                            updateBookState(bookFlipInstance.getCurrentPageIndex());
                         }
                     }, 150);
-                }, { passive: true });
-
+                });
             } else {
                 // إبقاء تقليب الصفحات الكلاسيكي لأجهزة الكمبيوتر
-                bookFlipInstance = new PageFlip(bookEl, { width: sWidth, height: pHeight, size: 'fixed', direction: 'rtl', usePortrait: false, showCover: true, flippingTime: 600, clickEventForward: true });
+                bookFlipInstance = new PageFlip(bookEl, {
+                    width: sWidth,
+                    height: pHeight,
+                    size: 'fixed',
+                    direction: 'rtl',
+                    usePortrait: false,
+                    showCover: true,
+                    flippingTime: 600,
+                    clickEventForward: true
+                });
                 bookFlipInstance.loadFromHTML(document.querySelectorAll('.page'));
             }
 
-const updateBookState = (p) => {
-                const total = bookFlipInstance.getPageCount();
-                const pages = document.querySelectorAll('.page');
-                
-                // --- الإيقاف الفوري لجميع الأصوات والأنيميشن والتفاعلات عند بداية قلب أي صفحة ---
-                if (window.stopAllAudioAndAnimations) window.stopAllAudioAndAnimations();
+        const updateBookState = (p) => {
+            const total = bookFlipInstance.getPageCount();
+            const pages = document.querySelectorAll('.page');
+
+            // --- الإيقاف الفوري لجميع الأصوات والأنيميشن والتفاعلات عند بداية قلب أي صفحة ---
+            if (window.stopAllAudioAndAnimations) window.stopAllAudioAndAnimations();
+            if (typeof window.stopRadioBroadcast === 'function') window.stopRadioBroadcast(null); // إيقاف الراديو للكمبيوتر أيضاً
+            if (typeof window.stopFlashlightMode === 'function') window.stopFlashlightMode(null); // إيقاف الكشاف للكمبيوتر أيضاً
 
                 // إيقاف التمارين مؤقتاً إذا غادرنا صفحاتها
                 if (pages[p] && pages[p].id !== 'quiz-page' && QuizManager.isActive) QuizManager.pauseGame();
