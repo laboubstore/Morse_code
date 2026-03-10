@@ -492,10 +492,10 @@
             color: var(--ink);
         }
         
-        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+      @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-@media (max-width: 480px) {
+        @media (max-width: 480px) {
             .page-content-wrapper { 
                 padding: 45px 15px; /* إبعاد المحتوى عن الحواف العلوية والسفلية */
                 justify-content: center !important; /* إجبار المحتوى على التوسيط العمودي دائماً */
@@ -526,6 +526,58 @@
             .bank-menu-container {
                 padding: 5px 0 !important; 
                 justify-content: center !important;
+            }
+
+            /* --- التعديل الجديد: تقريب وتوسيط عناصر التمارين (الحروف والأرقام) في الهاتف --- */
+            .quiz-container {
+                padding: 10px 5px !important;
+                justify-content: center !important;
+                gap: 5px !important;
+            }
+            .quiz-card {
+                padding: 10px !important;
+                gap: 5px !important;
+                margin-bottom: 2px !important;
+                height: auto !important;
+                min-height: fit-content !important;
+            }
+            .quiz-title {
+                font-size: 1.6rem !important;
+                margin-bottom: 2px !important;
+            }
+            .quiz-status {
+                font-size: 0.9rem !important;
+                margin-bottom: 2px !important;
+            }
+            .quiz-big-char {
+                font-size: 4.5rem !important;
+                margin: 0 !important;
+                line-height: 1 !important;
+            }
+            .quiz-question-text {
+                font-size: 1.2rem !important;
+                margin-bottom: 2px !important;
+            }
+            .quiz-options-grid {
+                gap: 10px !important;
+                flex-grow: 0 !important;
+            }
+            .quiz-btn {
+                padding: 8px !important;
+                font-size: 1.3rem !important;
+                height: 50px !important;
+            }
+            .quiz-controls {
+                gap: 10px !important;
+                margin-top: 5px !important;
+            }
+            .action-btn {
+                padding: 8px 18px !important;
+                font-size: 0.95rem !important;
+            }
+            .quiz-input-area {
+                min-height: 45px !important;
+                margin: 5px 0 !important;
             }
         }        
         
