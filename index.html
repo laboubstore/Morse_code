@@ -5904,49 +5904,37 @@ const PageFlip = St.PageFlip;
                     page.style.direction = 'rtl'; // إعادة المحتوى للغة العربية من اليمين لليسار
                 });
 
-                // إخفاء ظل الكتاب الوهمي لأنه لم يعد مفيداً في الهاتف
+// إخفاء ظل الكتاب الوهمي لأنه لم يعد مفيداً في الهاتف
                 if(shadowEl) shadowEl.style.display = 'none';
 
                 // إنشاء نسخة وهمية من bookFlipInstance لكي لا تتعطل دوال الفهرس والمفضلة
                 bookFlipInstance = {
                     flipNext: () => bookEl.scrollBy({ left: window.innerWidth, behavior: 'smooth' }), // التمرير لليمين (الصفحة التالية)
                     flipPrev: () => bookEl.scrollBy({ left: -window.innerWidth, behavior: 'smooth' }), // التمرير لليسار (الصفحة السابقة)
-                    flip: (index) => {
-                        const pages = document.querySelectorAll('.page');
-                        if(pages[index]) {
-                            // التمرير المباشر في الأجهزة المحمولة لتجنب الأخطاء في حساب المسافات
-                            bookEl.scrollTo({ left: index * window.innerWidth, behavior: 'auto' });
-                            updateBookState(index);
-                        }
-                    },
-                    getCurrentPageIndex: () => Math.round(bookEl.scrollLeft / window.innerWidth),
-                    getPageCount: () => document.querySelectorAll('.page').length
+                    flip: (index) => bookEl.scrollTo({ left: index * window.innerWidth, behavior: 'smooth' })
                 };
 
-               // تحديث حالة الكتاب (رقم الصفحة وما إلى ذلك) عند التمرير
+                // --- التعديل الدقيق: إيقاف موجات الراديو والصوت فوراً عند التمرير (تغيير الصفحة) في الهاتف ---
+                let lastScrollIndex = 0;
                 let scrollTimeout;
                 bookEl.addEventListener('scroll', () => {
-                    // --- التعديل الجذري للهاتف: الإيقاف الفوري للصوت والإضاءة بمجرد بدء التمرير (بصفر تأخير) ---
-                    try {
-                        if (typeof stopMorse === 'function') stopMorse();
-                        if (typeof stopPlayback === 'function') stopPlayback();
-                        if (window.audioCtx && window.audioCtx.state === 'running') window.audioCtx.suspend();
-                        if (window.audioContext && window.audioContext.state === 'running') window.audioContext.suspend();
-                        if (window.stopAllAudioAndAnimations) window.stopAllAudioAndAnimations();
-                        window.currentWordPlaybackId = Date.now(); // قتل إضاءة مفكك الكلمات فوراً
-                        document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
-                    } catch(err) {
-                        console.log("خطأ في إيقاف الصوت أثناء التمرير:", err);
-                    }
-                    // --------------------------------------------------------------------------------------------------
+                    // 1. إيقاف الصوت فوراً عند أي لمسة تمرير (إيقاف موجات الراديو)
+                    if(typeof window.killAllScheduledAudio === 'function') window.killAllScheduledAudio();
+                    if(typeof window.closeSentenceModal === 'function') window.closeSentenceModal();
+                    document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
 
+                    // 2. تحديث حالة الكتاب بعد استقرار التمرير لمعرفة رقم الصفحة الحالية وتحديث الفهرس
                     clearTimeout(scrollTimeout);
                     scrollTimeout = setTimeout(() => {
-                        if (typeof updateBookState === 'function') {
-                            updateBookState(bookFlipInstance.getCurrentPageIndex());
+                        let currentPage = Math.round(bookEl.scrollLeft / window.innerWidth);
+                        if (currentPage !== lastScrollIndex) {
+                            lastScrollIndex = currentPage;
+                            if(typeof updateBookState === 'function') {
+                                updateBookState(currentPage);
+                            }
                         }
                     }, 150);
-                });
+                }, { passive: true });
 
             } else {
                 // إبقاء تقليب الصفحات الكلاسيكي لأجهزة الكمبيوتر
