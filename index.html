@@ -3736,15 +3736,14 @@ html += `<div class="page cover" data-density="hard">
                 <button class="back-index-btn" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="jumpToSection('page-index')">الفهرس ↰</button>
             </div></div></div>`;
 
-html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="page-texture"><div class="page-content" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 20px 10px; position: relative; box-sizing: border-box; width: 100%;">
+            html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="page-texture"><div class="page-content" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 20px 10px; position: relative; box-sizing: border-box; width: 100%;">
                 <div id="bank-stats-view" class="bank-menu-container" style="display: none; flex-direction: column; justify-content: flex-start; height: 100%; overflow-y:auto; padding-bottom:20px; width: 100%; align-items: center;"></div>
-                <div id="bank-menu-view" class="bank-menu-container" style="margin: auto; justify-content: center; align-items: center; width: 100%; display: flex; flex-direction: column;">
+                <div id="bank-menu-view" class="bank-menu-container" style="margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); align-items: center; justify-content: center;">
                     <div style="width: 100%; text-align: center; margin-bottom: 15px;">
                         <h2 class="section-title" style="margin-bottom: 5px; font-size: clamp(1.8rem, 4.5vh, 2.5rem);">اختر التحدي</h2>
                         <p style="color: var(--blue); font-family: 'Amiri'; font-size: clamp(0.9rem, 2vh, 1.1rem); margin: 0;">اختر نمط اللعب لتطوير مهاراتك!</p>
                     </div>
-                    
-                    <div class="bank-modes-grid">
+                    <div class="bank-modes-grid" style="margin: 0 auto 15px auto;">
                         <div class="bank-mode-card" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="BankQuizManager.startGame('textToMorse')">
                             <div class="bank-mode-icon">🔠</div>
                             <div class="bank-mode-text-wrapper">
@@ -3752,15 +3751,13 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                                 <div class="bank-mode-desc">درب يدك على الإرسال</div>
                             </div>
                         </div>
-
                         <div class="bank-mode-card" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="BankQuizManager.startGame('morseToText')">
                             <div class="bank-mode-icon">🎧</div>
                             <div class="bank-mode-text-wrapper">
                                 <div class="bank-mode-title">شيفرة ⬅ نص</div>
-                               <div class="bank-mode-desc">درب أذنك على الاستقبال</div>
+                                <div class="bank-mode-desc">درب أذنك على الاستقبال</div>
                             </div>
                         </div>
-
                         <div class="bank-mode-card" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="BankQuizManager.startGame('timeAttack')">
                             <div class="bank-mode-icon">⏳</div>
                             <div class="bank-mode-text-wrapper">
@@ -3768,7 +3765,6 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                                 <div class="bank-mode-desc">تحدي الـ 60 ثانية</div>
                             </div>
                         </div>
-
                         <div class="bank-mode-card" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="BankQuizManager.startGame('blind')">
                             <div class="bank-mode-icon">🙈</div>
                             <div class="bank-mode-text-wrapper">
@@ -3777,9 +3773,9 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                             </div>
                         </div>
                     </div>
-
-                    <button class="action-btn btn-stats" style="margin-top: 1vh; font-size: 1.1rem; padding: 12px 35px; width: 85%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="BankQuizManager.showStats()">🏆 عرض مستواك والإحصائيات</button>
-                </div> <div id="bank-game-view" class="bank-game-container" style="padding-bottom: 20px;">
+                    <button class="action-btn btn-stats" style="display: block; margin: 1vh auto 0 auto; font-size: 1.1rem; padding: 12px 35px; width: 85%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="BankQuizManager.showStats()">🏆 عرض مستواك والإحصائيات</button>
+                </div>
+                <div id="bank-game-view" class="bank-game-container" style="padding-bottom: 20px;">
                     <div class="bank-header-row">
 
                         <button class="action-btn btn-quit" style="padding: 5px 15px; font-size: 0.9rem;" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="BankQuizManager.renderMenu()">↰ القائمة</button>
