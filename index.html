@@ -3728,7 +3728,7 @@ html += `<div class="page cover" data-density="hard">
                 <div class="page-num" style="position: absolute; bottom: 10px; width: 100%; text-align: center;">تعلم كتابة الجمل</div>
             </div></div>`;
 
-/// القسم الثالث عشر: بنك التحديات الشامل
+//// القسم الثالث عشر: بنك التحديات الشامل
             html += `<div class="page" id="sec-bank"><div class="page-texture"><div class="intro-page-content">
                 <h1 class="section-title">القسم الثالث عشر</h1>
                 <h3 class="section-subtitle">بنك التحديات الشامل</h3>
@@ -3736,9 +3736,9 @@ html += `<div class="page cover" data-density="hard">
                 <button class="back-index-btn" onmousedown="stopAllInteraction(event)" ontouchstart="stopAllInteraction(event)" onclick="jumpToSection('page-index')">الفهرس ↰</button>
             </div></div></div>`;
 
-html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="page-texture"><div class="page-content" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 20px 10px; position: relative; box-sizing: border-box;">
-                <div id="bank-stats-view" class="bank-menu-container" style="display: none; flex-direction: column; justify-content: flex-start; height: 100%; overflow-y:auto; padding-bottom:20px;"></div>
-                <div id="bank-menu-view" class="bank-menu-container" style="margin: auto 0; justify-content: center;">
+html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="page-texture"><div class="page-content" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 20px 10px; position: relative; box-sizing: border-box; width: 100%;">
+                <div id="bank-stats-view" class="bank-menu-container" style="display: none; flex-direction: column; justify-content: flex-start; height: 100%; overflow-y:auto; padding-bottom:20px; width: 100%; align-items: center;"></div>
+                <div id="bank-menu-view" class="bank-menu-container" style="margin: auto; justify-content: center; align-items: center; width: 100%; display: flex; flex-direction: column;">
                     <div style="width: 100%; text-align: center; margin-bottom: 15px;">
                         <h2 class="section-title" style="margin-bottom: 5px; font-size: clamp(1.8rem, 4.5vh, 2.5rem);">اختر التحدي</h2>
                         <p style="color: var(--blue); font-family: 'Amiri'; font-size: clamp(0.9rem, 2vh, 1.1rem); margin: 0;">اختر نمط اللعب لتطوير مهاراتك!</p>
@@ -5814,10 +5814,14 @@ const PageFlip = St.PageFlip;
             if (isMobile) {
                 let mobileHeight = window.innerHeight - 60; // طرح 60 بكسل لترك 30 بكسل بالضبط من الأعلى و 30 بكسل من الأسفل
 
-                // تعديل حاوية المشهد لتأخذ الشاشة بالكامل (100vh) لكي يعمل التوسيط (Flexbox) بدقة متناهية
+                // التعديل: استخدام window.innerHeight بدلاً من 100vh لمنع شريط المتصفح من رفع الكتاب للأعلى
+                // مع إضافة خصائص التوسيط الإجباري (Flexbox) للحاوية الأساسية
                 sceneContainer.style.width = '100vw';
-                sceneContainer.style.height = '100vh';
+                sceneContainer.style.height = window.innerHeight + 'px';
                 sceneContainer.style.overflow = 'hidden';
+                sceneContainer.style.display = 'flex';
+                sceneContainer.style.alignItems = 'center';
+                sceneContainer.style.justifyContent = 'center';
                 
                 // تعديل هيكل الكتاب ليكون حاوية تمرير أفقية مع ارتفاع محدد لترك المسافات المتساوية
                 bookEl.style.display = 'flex';
@@ -5829,6 +5833,7 @@ const PageFlip = St.PageFlip;
                 bookEl.style.scrollBehavior = 'smooth';
                 bookEl.style.width = '100vw';
                 bookEl.style.height = mobileHeight + 'px';
+                bookEl.style.margin = 'auto'; // إجبار الكتاب على البقاء في المركز تماماً
                 bookEl.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)'; // إضافة ظل خفيف لبروز الكتاب عن الخلفية المخططة
                 
                 // تعديل الصفحات لتتناسب مع التمرير وتعود لاتجاهها العربي الصحيح داخلياً
