@@ -523,9 +523,78 @@
                 height: 55px !important;
                 font-size: 2rem !important;
             }
-            .bank-menu-container {
+           
+.bank-menu-container {
                 padding: 5px 0 !important; 
                 justify-content: center !important;
+            }
+
+            /* --- التعديل الجديد: تقريب وتوسيط عناصر التمارين (الحروف والأرقام) في الهاتف وثباتها --- */
+            .quiz-container {
+                padding: 10px 5px !important;
+                justify-content: center !important;
+                align-items: center !important;
+                display: flex !important;
+                flex-direction: column !important;
+                height: 100% !important;
+                gap: 5px !important;
+            }
+            .quiz-card {
+                padding: 10px !important;
+                gap: 5px !important;
+                margin-bottom: 2px !important;
+                height: auto !important;
+                min-height: 380px !important; /* تثبيت الارتفاع الأدنى لمنع تحرك العناصر */
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                text-align: center !important;
+                width: 100% !important;
+            }
+            .quiz-title {
+                font-size: 1.6rem !important;
+                margin-bottom: 2px !important;
+            }
+            .quiz-status {
+                font-size: 0.9rem !important;
+                margin-bottom: 2px !important;
+            }
+            .quiz-big-char {
+                font-size: 4.5rem !important;
+                margin: 0 !important;
+                line-height: 1 !important;
+            }
+            .quiz-question-text {
+                font-size: 1.2rem !important;
+                margin-bottom: 2px !important;
+            }
+            .quiz-options-grid {
+                gap: 10px !important;
+                flex-grow: 0 !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+            .quiz-btn {
+                padding: 8px !important;
+                font-size: 1.3rem !important;
+                height: 50px !important;
+            }
+            .quiz-controls {
+                gap: 10px !important;
+                margin-top: 5px !important;
+                justify-content: center !important;
+            }
+            .action-btn {
+                padding: 8px 18px !important;
+                font-size: 0.95rem !important;
+            }
+            .quiz-input-area {
+                min-height: 45px !important;
+                margin: 5px 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
             }
         }        
         
@@ -5730,7 +5799,7 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                         const isEdgeX = (x < width * 0.15) || (x > width * 0.85);
                         const isEdgeY = (y < height * 0.15) || (y > height * 0.85);
 
-  // إذا كان النقر في منتصف الصفحة (ليس على الحواف)، يتم إيقاف الحدث لمنع التقليب العشوائي
+// إذا كان النقر في منتصف الصفحة (ليس على الحواف)، يتم إيقاف الحدث لمنع التقليب العشوائي
                         if (!isEdgeX && !isEdgeY) {
                             e.stopPropagation();
                         }
@@ -5743,14 +5812,14 @@ const PageFlip = St.PageFlip;
 
          // --- التعديل الجذري للهاتف: تحويل الكتاب إلى صفحات قابلة للتمرير الجانبي (من اليسار لليمين بدقة) ---
             if (isMobile) {
-                let mobileHeight = window.innerHeight - 60; // ترك مسافة 30 بكسل من الأعلى و 30 بكسل من الأسفل
-                
-                // تعديل حاوية المشهد لترك مسافة من الأعلى والأسفل
+                let mobileHeight = window.innerHeight - 60; // طرح 60 بكسل لترك 30 بكسل بالضبط من الأعلى و 30 بكسل من الأسفل
+
+                // تعديل حاوية المشهد لتأخذ الشاشة بالكامل (100vh) لكي يعمل التوسيط (Flexbox) بدقة متناهية
                 sceneContainer.style.width = '100vw';
-                sceneContainer.style.height = mobileHeight + 'px';
+                sceneContainer.style.height = '100vh';
                 sceneContainer.style.overflow = 'hidden';
                 
-                // تعديل هيكل الكتاب ليكون حاوية تمرير أفقية من اليسار لليمين بشكل إجباري
+                // تعديل هيكل الكتاب ليكون حاوية تمرير أفقية مع ارتفاع محدد لترك المسافات المتساوية
                 bookEl.style.display = 'flex';
                 bookEl.style.flexDirection = 'row';
                 bookEl.style.direction = 'ltr'; // إجبار الترتيب من اليسار لليمين كما طلبت تماماً
@@ -5760,7 +5829,7 @@ const PageFlip = St.PageFlip;
                 bookEl.style.scrollBehavior = 'smooth';
                 bookEl.style.width = '100vw';
                 bookEl.style.height = mobileHeight + 'px';
-                bookEl.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)'; // إضافة ظل خفيف للكتاب ليفصل عن الخلفية
+                bookEl.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)'; // إضافة ظل خفيف لبروز الكتاب عن الخلفية المخططة
                 
                 // تعديل الصفحات لتتناسب مع التمرير وتعود لاتجاهها العربي الصحيح داخلياً
                 document.querySelectorAll('.page').forEach(page => {
