@@ -4195,7 +4195,7 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
             };
         }
 
-        window.killAllScheduledAudio = function() {
+     window.killAllScheduledAudio = function() {
             if (window.allActiveOscillators) {
                 window.allActiveOscillators.forEach(osc => {
                     try { osc.stop(); osc.disconnect(); } catch(e) {}
@@ -4217,7 +4217,8 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                         codeHtml += `<div class="${cls}" id="${elId}"></div>`;
                     });
                     
-                    wordHtml += `<div class="tape-letter-block" style="display:flex; align-items:flex-end;">
+                    let letterBlockId = isModal ? `letter-block-m-${wIdx}-${lIdx}` : `letter-block-s-${cat}-${sIdx}-${wIdx}-${lIdx}`;
+                    wordHtml += `<div class="tape-letter-block" id="${letterBlockId}" style="display:flex; align-items:flex-end;">
                         <div style="display:flex; flex-direction:column; align-items:center;">
                             <div class="tape-char" id="${isModal ? `char-m-${wIdx}-${lIdx}` : `char-s-${cat}-${sIdx}-${wIdx}-${lIdx}`}">${char}</div>
                             <div class="tape-code-row">${codeHtml}</div>
@@ -4232,7 +4233,7 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                     }
                     wordHtml += `</div>`;
                 });
-
+                
                 tapeHtml += `<div class="tape-word-block" id="${isModal ? `word-block-m-${wIdx}` : `word-block-s-${cat}-${sIdx}-${wIdx}`}">${wordHtml}</div>`;
                 
                 if (wIdx < s.words.length - 1) {
@@ -4379,15 +4380,14 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                 playModalSentence(currentModalSentence);
             }, 300);
         };
-
-        window.closeSentenceModal = function(event) {
-            if(event) { event.stopPropagation(); }
-            
+window.closeSentenceModal = function(event) {
+            if(event) {
+                event.stopPropagation();
+            }
             window.killAllScheduledAudio();
-            isPlaying = false; 
-            
+            isPlaying = false;
             const modal = document.getElementById('sentence-playback-modal');
-            if(modal) modal.style.display = 'none'; 
+            if(modal) modal.style.display = 'none';
             
             document.querySelectorAll('.tape-word-block, .word-separator-block').forEach(b => b.classList.remove('active-word'));
             document.querySelectorAll('.tape-char').forEach(c => c.classList.remove('playing-char'));
@@ -4398,6 +4398,7 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
             isPlaying = true;
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
+            const isMobileView = window.innerWidth < 768; // الكشف الدقيق عن الهاتف
             const T = dotDuration;
             let startTime = audioCtx.currentTime;
             let visualEvents = [];
@@ -4409,7 +4410,16 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
             const replayBtn = document.getElementById('modal-replay-btn');
 
             s.words.forEach((wordObj, wIdx) => {
-                visualEvents.push({ t: accumulatedTime, type: 'word-start', wIdx: wIdx, text: `الكلمة: ${wordObj.chars.join('')}` });
+                // تقييم التمرير بالحرف: إذا كان جوال، أو الكلمة أطول من 4 حروف
+                let shouldScrollPerLetter = isMobileView || (wordObj.chars.length > 4);
+
+                visualEvents.push({ 
+                    t: accumulatedTime, 
+                    type: 'word-start', 
+                    wIdx: wIdx, 
+                    text: `الكلمة: ${wordObj.chars.join('')}`,
+                    shouldScrollPerLetter: shouldScrollPerLetter
+                });
                 
                 wordObj.codes.forEach((codeStr, lIdx) => {
                     let letterStartTime = accumulatedTime;
@@ -4420,17 +4430,25 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                         let elId = `led-m-${wIdx}-${lIdx}-${i}`;
                         
                         playTone(700, duration, startTime + accumulatedTime);
+                        
                         visualEvents.push({t: accumulatedTime, type: 'on', el: elId});
                         visualEvents.push({t: accumulatedTime + duration, type: 'off', el: elId});
                         
                         accumulatedTime += duration;
-                        if (i < codeStr.length - 1) accumulatedTime += T; 
+                        if (i < codeStr.length - 1) accumulatedTime += T;
                     }
-                    
                     let letterEndTime = accumulatedTime;
-                    visualEvents.push({t: letterStartTime, type: 'on-char', el: `char-m-${wIdx}-${lIdx}`});
+                    
+                    visualEvents.push({
+                        t: letterStartTime, 
+                        type: 'on-char', 
+                        el: `char-m-${wIdx}-${lIdx}`,
+                        wIdx: wIdx,
+                        lIdx: lIdx,
+                        shouldScrollPerLetter: shouldScrollPerLetter
+                    });
                     visualEvents.push({t: letterEndTime, type: 'off-char', el: `char-m-${wIdx}-${lIdx}`});
-
+                    
                     if (lIdx < wordObj.codes.length - 1) {
                         for(let k=0; k<3; k++) {
                             visualEvents.push({t: accumulatedTime + (k*T), type: 'on', el: `ghost-m-${wIdx}-${lIdx}-${k}`});
@@ -4439,9 +4457,14 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                         accumulatedTime += T * 3;
                     }
                 });
-                
+
                 if (wIdx < s.words.length - 1) {
-                    visualEvents.push({ t: accumulatedTime, type: 'sep-start', wIdx: wIdx, text: 'مسافة 7 نقاط...' });
+                    visualEvents.push({ 
+                        t: accumulatedTime, 
+                        type: 'sep-start', 
+                        wIdx: wIdx, 
+                        text: 'مسافة 7 نقاط...' 
+                    });
                     for(let k=0; k<7; k++) {
                         visualEvents.push({t: accumulatedTime + (k*T), type: 'on', el: `ghost-w-m-${wIdx}-${k}`});
                         visualEvents.push({t: accumulatedTime + ((k+1)*T), type: 'off', el: `ghost-w-m-${wIdx}-${k}`});
@@ -4449,57 +4472,88 @@ html += `<div class="page" id="quiz-bank-page" data-density="hard"><div class="p
                     accumulatedTime += T * 7;
                 }
             });
-            
+
             visualEvents.push({ t: accumulatedTime + (T * 3), type: 'audio-end' });
 
             function sync() {
-                if (!isPlaying) return; 
-
+                if (!isPlaying) return;
                 const now = audioCtx.currentTime - startTime;
+                
                 for (let i = 0; i < visualEvents.length; i++) {
                     const e = visualEvents[i];
                     if (!e.done && now >= e.t) {
+                        
                         if (e.type === 'on' || e.type === 'off') {
                             const el = document.getElementById(e.el);
                             if (el) {
                                 if (e.type === 'on') el.classList.add('active');
                                 else el.classList.remove('active');
                             }
-                        } else if (e.type === 'on-char' || e.type === 'off-char') {
+                        } 
+                        else if (e.type === 'on-char' || e.type === 'off-char') {
                             const el = document.getElementById(e.el);
                             if (el) {
-                                if (e.type === 'on-char') el.classList.add('playing-char');
-                                else el.classList.remove('playing-char');
+                                if (e.type === 'on-char') {
+                                    el.classList.add('playing-char');
+                                    // التمرير الدقيق على الحرف الشغال إذا انطبقت الشروط
+                                    if (e.shouldScrollPerLetter && scrollContainer) {
+                                        const letterBlock = document.getElementById(`letter-block-m-${e.wIdx}-${e.lIdx}`);
+                                        if (letterBlock) {
+                                            const blockRect = letterBlock.getBoundingClientRect();
+                                            const containerRect = scrollContainer.getBoundingClientRect();
+                                            const offset = scrollContainer.scrollLeft + blockRect.left - containerRect.left - (containerRect.width / 2) + (blockRect.width / 2);
+                                            scrollContainer.scrollTo({ left: offset, behavior: 'smooth' });
+                                        }
+                                    }
+                                } else {
+                                    el.classList.remove('playing-char');
+                                }
                             }
-                        } else if (e.type === 'word-start' || e.type === 'sep-start') {
-                            if(statusBar && e.text) { 
-                                statusBar.innerText = e.text; 
-                                statusBar.style.background = e.type === 'word-start' ? 'var(--active-glow)' : 'var(--giveup)'; 
+                        } 
+                        else if (e.type === 'word-start' || e.type === 'sep-start') {
+                            if(statusBar && e.text) {
+                                statusBar.innerText = e.text;
+                                statusBar.style.background = e.type === 'word-start' ? 'var(--active-glow)' : 'var(--giveup)';
                             }
                             if(tapeContent) {
                                 const words = tapeContent.querySelectorAll('.tape-word-block');
                                 const seps = tapeContent.querySelectorAll('.word-separator-block');
-                                words.forEach(w => w.classList.remove('active-word'));
-                                seps.forEach(s => s.classList.remove('active-word'));
                                 
-                                let targetBlockId = e.type === 'word-start' ? `word-block-m-${e.wIdx}` : `sep-block-m-${e.wIdx}`;
-                                let targetBlock = document.getElementById(targetBlockId);
-                                
-                                if(targetBlock) {
-                                    targetBlock.classList.add('active-word');
-                                    
-                                    // النقلة الحاسمة والمثالية للتوسيط الدقيق في الشاشة 
-                                    if(scrollContainer) {
-                                        const blockRect = targetBlock.getBoundingClientRect();
-                                        const containerRect = scrollContainer.getBoundingClientRect();
-                                        const offset = scrollContainer.scrollLeft + blockRect.left - containerRect.left - (containerRect.width / 2) + (blockRect.width / 2);
-                                        scrollContainer.scrollTo({ left: offset, behavior: 'smooth' });
+                                if (e.type === 'word-start') {
+                                    words.forEach(w => w.classList.remove('active-word'));
+                                    seps.forEach(s => s.classList.remove('active-word'));
+                                    let targetBlock = document.getElementById(`word-block-m-${e.wIdx}`);
+                                    if(targetBlock) {
+                                        targetBlock.classList.add('active-word');
+                                        // التمرير على الكلمة كاملة فقط إذا لم تكن طويلة ولم تكن في الجوال
+                                        if(!e.shouldScrollPerLetter && scrollContainer) {
+                                            const blockRect = targetBlock.getBoundingClientRect();
+                                            const containerRect = scrollContainer.getBoundingClientRect();
+                                            const offset = scrollContainer.scrollLeft + blockRect.left - containerRect.left - (containerRect.width / 2) + (blockRect.width / 2);
+                                            scrollContainer.scrollTo({ left: offset, behavior: 'smooth' });
+                                        }
+                                    }
+                                } else if (e.type === 'sep-start') {
+                                    words.forEach(w => w.classList.remove('active-word'));
+                                    seps.forEach(s => s.classList.remove('active-word'));
+                                    let targetBlock = document.getElementById(`sep-block-m-${e.wIdx}`);
+                                    if(targetBlock) {
+                                        targetBlock.classList.add('active-word');
+                                        if(scrollContainer) {
+                                            const blockRect = targetBlock.getBoundingClientRect();
+                                            const containerRect = scrollContainer.getBoundingClientRect();
+                                            const offset = scrollContainer.scrollLeft + blockRect.left - containerRect.left - (containerRect.width / 2) + (blockRect.width / 2);
+                                            scrollContainer.scrollTo({ left: offset, behavior: 'smooth' });
+                                        }
                                     }
                                 }
                             }
-
-                        } else if (e.type === 'audio-end') {
-                            if(statusBar) { statusBar.innerText = 'انتهت الرسالة! 🎉'; statusBar.style.background = 'var(--blue)'; }
+                        } 
+                        else if (e.type === 'audio-end') {
+                            if(statusBar) {
+                                statusBar.innerText = 'انتهت الرسالة! 🎉';
+                                statusBar.style.background = 'var(--blue)';
+                            }
                             if(tapeContent) {
                                 tapeContent.querySelectorAll('.tape-word-block, .word-separator-block').forEach(b => b.classList.remove('active-word'));
                                 tapeContent.querySelectorAll('.tape-char').forEach(c => c.classList.remove('playing-char'));
